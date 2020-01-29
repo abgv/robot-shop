@@ -17,6 +17,7 @@ podTemplate (label: 'robotshop_pod', containers: [
 				echo "GIT_BRANCH=${gitBranch}" 
 				echo "GIT_COMMIT=${gitCommit}" 
 				echo "CHANGES=${changes}"
+				ls
 				"""
 			}
 		}
