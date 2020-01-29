@@ -8,7 +8,7 @@ podTemplate (label: 'robotshop_pod', containers: [
 		def repo = checkout scm
 		def gitCommit = repo.GIT_COMMIT
     	def gitBranch = repo.GIT_BRANCH
-		def changes = sh(script: "git diff --dirstat=files,0 HEAD~1 | sed -E 's/^[ 0-9.]+% //g' | sed -E 's/\\/.*$//g'", returnStdout: true)
+		def changes = sh(script: "git diff --dirstat=files,0 HEAD~1 | sed -E 's/^[ 0-9.]+% //g' | sed -E 's/\\/.*\$//g'", returnStdout: true)
 
 		stage ('Build') {
 			container('docker') {
