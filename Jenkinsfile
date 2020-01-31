@@ -26,7 +26,7 @@ podTemplate (label: 'robotshop', containers: [
 									passwordVariable: 'DOCKERHUB_PASSWORD', usernameVariable: 'DOCKERHUB_USER')]) {
 							def tag = "${DOCKERHUB_USER}/rs-${changes}:${gitCommit}"
 							sh """
-							docker login -u ${DOCKERHUB_USER} -p ${DOCKERHUB_PASSWORD}
+							docker login -u ${DOCKERHUB_USER} -p '${DOCKERHUB_PASSWORD}'
 							docker build -t ${tag} .
 							docker push ${tag}
 							"""
