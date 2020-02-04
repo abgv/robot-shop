@@ -1,5 +1,6 @@
 podTemplate (label: 'robotshop', containers: [
-		containerTemplate(name: 'docker', image: 'docker', command: 'cat', ttyEnabled: true)
+		containerTemplate(name: 'docker', image: 'docker', command: 'cat', ttyEnabled: true),
+		containerTemplate(name: 'kubectl', image: 'wernight/kubectl:latest', command: 'cat', ttyEnabled: true)
 	],
 	volumes: [
 		hostPathVolume(mountPath: '/var/run/docker.sock', hostPath: '/var/run/docker.sock'),
@@ -42,6 +43,14 @@ podTemplate (label: 'robotshop', containers: [
 						sh 'echo No buildable Microservice'
 					}
 				}	
+			}
+		}
+
+		stage ('Deploy') {
+			container ('kubectl') {
+				sh """
+				kubectl get pods
+				"""
 			}
 		}
 	}
