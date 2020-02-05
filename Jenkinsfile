@@ -1,6 +1,6 @@
 podTemplate (label: 'robotshop', containers: [
 		containerTemplate(name: 'docker', image: 'docker', command: 'cat', ttyEnabled: true),
-		containerTemplate(name: 'kubectl', image: 'wernight/kubectl:latest', command: 'cat', ttyEnabled: true)
+		containerTemplate(name: 'kubectl', image: 'boxboat/kubectl:latest', command: 'cat', ttyEnabled: true)
 	],
 	volumes: [
 		hostPathVolume(mountPath: '/var/run/docker.sock', hostPath: '/var/run/docker.sock'),
@@ -10,7 +10,7 @@ podTemplate (label: 'robotshop', containers: [
 		def gitCommit = repo.GIT_COMMIT
     	def gitBranch = repo.GIT_BRANCH
 		def shortGitCommit = "${gitCommit[0..10]}"
-		def changes = sh(script: "git diff --dirstat=files,0 HEAD~1 | sed -E 's/^[ 0-9.]+% //g' | sed -E 's/\\/.*\$//g'", returnStdout: true)
+		def changes = sh (script: "git diff --dirstat=files,0 HEAD~1 | sed -E 's/^[ 0-9.]+% //g' | sed -E 's/\\/.*\$//g'", returnStdout: true)
 		changes = changes.split('\\n')
 		
 		stage ('Build') {
@@ -48,9 +48,7 @@ podTemplate (label: 'robotshop', containers: [
 
 		stage ('Deploy') {
 			container ('kubectl') {
-				sh """
-				kubectl get pods
-				"""
+				sh 'kubectl get pods'
 			}
 		}
 	}
