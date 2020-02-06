@@ -17,21 +17,20 @@ podTemplate (label: 'robotshop', containers: [
 			container ('docker') {
 				for (change in changes) {
 					change.trim()
+					sh "echo ${change}"
 					def buildable = !(change.matches(".*\\b(K8s|DCOS|OpenShift|Swarm)\\b.*"))
 					if (change != '' && buildable) {
 						dir (change) {
-							withCredentials ([usernamePassword (credentialsId: 'DockerHub', 
-										passwordVariable: 'DOCKERHUB_PASSWORD', usernameVariable: 'DOCKERHUB_USER')]) {
-								if (change == 'mysql') {
+							if (change == 'mysql') {
 									change = "${change}-db"
-								}
-								else if (change == 'mongo') {
-									change = "${change}db"
-								}
+							}
+							else if (change == 'mongo') {
+								change = "${change}db"
+							}
 
-								def tag = "${DOCKERHUB_USER}/rs-${change}:0.4.${env.BUILD_ID}"
+							withDockerRegistry(credentialsId: 'DockerHub') {
+								def tag = "${env.DOCKER_REGISTRY}/rs-${change}:latest"
 								sh """
-								docker login -u ${DOCKERHUB_USER} -p '${DOCKERHUB_PASSWORD}'
 								docker build -t ${tag} .
 								docker push ${tag}
 								"""
@@ -48,7 +47,21 @@ podTemplate (label: 'robotshop', containers: [
 
 		stage ('Deploy') {
 			container ('kubectl') {
-				sh 'kubectl get pods'
+				for (change in changes) {
+					change.trim()
+					def buildable = !(change.matches(".*\\b(K8s|DCOS|OpenShift|Swarm)\\b.*"))
+					if (change != '' && buildable) {
+						if (change == 'mongo') {
+							change = "${change}db"
+						}
+
+						sh """
+						kubeclt apply -f ./K8s/descriptors/${change}-deployment.yaml
+						kubeclt apply -f ./K8s/descriptors/${change}-service.yaml
+						kubectl set image deployment/${change} ${change}=${env.DOCKER_REGISTRY}/rs-${change}:latest -n robot-shop --record
+						"""
+					}
+				}
 			}
 		}
 	}
