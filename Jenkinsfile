@@ -1,2 +1,2 @@
-@Library("global@automation_setup") _
+@Library("global@automation") _
 robotshopPipeline()
